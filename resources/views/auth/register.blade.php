@@ -1,52 +1,54 @@
 <x-guest-layout>
+    <div style="text-align: center; margin-bottom: 28px;">
+        <h1 style="font-family: Georgia, serif; font-size: 1.8rem; color: #2C1810; letter-spacing: 2px;">✦ MON BLOG</h1>
+        <p style="color: #C8956C; font-size: 0.9rem; margin-top: 6px;">Crée ton compte pour rejoindre la communauté</p>
+    </div>
+
     <form method="POST" action="{{ route('register') }}">
         @csrf
 
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
+        <!-- Nom -->
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; color: #2C1810; font-weight: bold; margin-bottom: 8px; font-family: Georgia, serif;">Nom</label>
+            <input id="name" type="text" name="name" value="{{ old('name') }}" required autofocus
+                   style="width: 100%; border: 1px solid #E8D5C0; border-radius: 12px; padding: 12px 16px; font-size: 1rem; color: #4A3728; background: #FAF3E8; outline: none; box-sizing: border-box;">
             <x-input-error :messages="$errors->get('name')" class="mt-2" />
         </div>
 
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
+        <!-- Email -->
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; color: #2C1810; font-weight: bold; margin-bottom: 8px; font-family: Georgia, serif;">Email</label>
+            <input id="email" type="email" name="email" value="{{ old('email') }}" required
+                   style="width: 100%; border: 1px solid #E8D5C0; border-radius: 12px; padding: 12px 16px; font-size: 1rem; color: #4A3728; background: #FAF3E8; outline: none; box-sizing: border-box;">
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
-
+        <!-- Mot de passe -->
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; color: #2C1810; font-weight: bold; margin-bottom: 8px; font-family: Georgia, serif;">Mot de passe</label>
+            <input id="password" type="password" name="password" required
+                   style="width: 100%; border: 1px solid #E8D5C0; border-radius: 12px; padding: 12px 16px; font-size: 1rem; color: #4A3728; background: #FAF3E8; outline: none; box-sizing: border-box;">
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
-
+        <!-- Confirmer mot de passe -->
+        <div style="margin-bottom: 28px;">
+            <label style="display: block; color: #2C1810; font-weight: bold; margin-bottom: 8px; font-family: Georgia, serif;">Confirmer le mot de passe</label>
+            <input id="password_confirmation" type="password" name="password_confirmation" required
+                   style="width: 100%; border: 1px solid #E8D5C0; border-radius: 12px; padding: 12px 16px; font-size: 1rem; color: #4A3728; background: #FAF3E8; outline: none; box-sizing: border-box;">
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <a href="{{ route('login') }}"
+               style="color: #C8956C; font-size: 0.85rem; text-decoration: none;">
+                Déjà un compte ?
             </a>
 
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
+            <button type="submit"
+                    style="background: linear-gradient(135deg, #2C1810, #4A2C17); color: #F5E6D3; padding: 10px 28px; border-radius: 25px; font-weight: bold; border: none; cursor: pointer;">
+                ✦ S'inscrire
+            </button>
         </div>
     </form>
 </x-guest-layout>
