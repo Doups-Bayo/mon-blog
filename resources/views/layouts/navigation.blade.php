@@ -6,7 +6,7 @@
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('home') }}" class="flex items-center gap-2">
                         <span style="color: #C8956C; font-size: 1.5rem;">✦</span>
-                        <span style="color: #F5E6D3; font-family: Georgia, serif; font-size: 1.2rem; font-weight: bold; letter-spacing: 2px;">MON BLOG</span>
+                        <span style="color: #F5E6D3; font-family: Georgia, serif; font-size: 1.2rem; font-weight: bold; letter-spacing: 2px;">DOUPS BLOG</span>
                     </a>
                 </div>
 

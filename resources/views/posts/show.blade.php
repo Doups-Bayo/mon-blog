@@ -26,6 +26,46 @@
                     </div>
                 @endif
 
+                <!-- Carrousel -->
+                @if($post->images->count() > 0)
+                <div style="padding: 20px; background: #FAF3E8;">
+                    <div id="carousel" style="position: relative; overflow: hidden; border-radius: 12px;">
+                        <div id="carousel-inner" style="display: flex; transition: transform 0.5s ease;">
+                            @foreach($post->images as $index => $image)
+                            <div style="min-width: 100%; position: relative;">
+                                <img src="{{ Storage::url($image->image_path) }}"
+                                     style="width: 100%; height: 400px; object-fit: cover; border-radius: 12px;"
+                                     alt="Image {{ $index + 1 }}">
+                                <div style="position: absolute; bottom: 12px; right: 16px; background: rgba(44,24,16,0.6); color: #F5E6D3; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem;">
+                                    {{ $index + 1 }} / {{ $post->images->count() }}
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+
+                        <!-- Boutons navigation -->
+                        @if($post->images->count() > 1)
+                        <button onclick="changeSlide(-1)"
+                                style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); background: rgba(44,24,16,0.7); color: #F5E6D3; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; cursor: pointer;">
+                            ‹
+                        </button>
+                        <button onclick="changeSlide(1)"
+                                style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: rgba(44,24,16,0.7); color: #F5E6D3; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; cursor: pointer;">
+                            ›
+                        </button>
+                        @endif
+
+                        <!-- Points de navigation -->
+                        <div style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px;">
+                            @foreach($post->images as $index => $image)
+                            <div class="dot" onclick="goToSlide({{ $index }})"
+                                 style="width: 8px; height: 8px; border-radius: 50%; background: {{ $index === 0 ? '#F5E6D3' : 'rgba(245,230,211,0.5)' }}; cursor: pointer; transition: background 0.3s;"></div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                @endif
+
                 <div style="padding: 32px;">
                     <h1 style="font-family: Georgia, serif; font-size: 2rem; color: #2C1810; margin-bottom: 16px; font-weight: bold;">
                         {{ $post->title }}
@@ -48,7 +88,6 @@
                     <!-- Actions -->
                     <div style="display: flex; align-items: center; gap: 12px; padding-top: 20px; border-top: 1px solid #E8D5C0; flex-wrap: wrap;">
 
-                        <!-- Like -->
                         @auth
                         <form action="{{ route('posts.like', $post) }}" method="POST">
                             @csrf
@@ -58,14 +97,6 @@
                         </form>
                         @endauth
 
-                        @guest
-                        <a href="{{ route('login') }}"
-                           style="background: #FFF0EB; border: 1px solid #E8D5C0; color: #E07B54; padding: 8px 20px; border-radius: 25px; font-weight: bold; text-decoration: none; font-size: 0.9rem;">
-                            ❤️ {{ $post->likes->count() }} J'aime
-                        </a>
-                        @endguest
-
-                        <!-- Partage -->
                         <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(route('posts.show', $post->slug)) }}"
                            target="_blank"
                            style="background: #1877F2; color: white; padding: 8px 20px; border-radius: 25px; font-size: 0.85rem; font-weight: bold; text-decoration: none;">
@@ -82,7 +113,6 @@
                             WhatsApp
                         </a>
 
-                        <!-- Modifier / Supprimer -->
                         @can('update', $post)
                         <div style="margin-left: auto; display: flex; gap: 8px;">
                             <a href="{{ route('posts.edit', $post) }}"
@@ -136,12 +166,52 @@
                         <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #C8956C, #E8D5C0); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #2C1810; font-weight: bold; font-size: 0.9rem;">
                             {{ substr($comment->user->name, 0, 1) }}
                         </div>
-                        <div>
+                        <div style="flex: 1;">
                             <strong style="color: #2C1810;">{{ $comment->user->name }}</strong>
                             <span style="color: #C8956C; font-size: 0.8rem; margin-left: 8px;">{{ $comment->created_at->diffForHumans() }}</span>
                         </div>
+                        @auth
+                        @if(auth()->id() === $comment->user_id)
+                        <div style="display: flex; gap: 8px;">
+                            <button onclick="document.getElementById('edit-comment-{{ $comment->id }}').style.display='block'; document.getElementById('text-comment-{{ $comment->id }}').style.display='none'"
+                                    style="background: #F5E6D3; color: #2C1810; border: 1px solid #C8956C; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; cursor: pointer;">
+                                ✏️ Modifier
+                            </button>
+                            <form action="{{ route('comments.destroy', $comment) }}" method="POST"
+                                  onsubmit="return confirm('Supprimer ce commentaire ?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                        style="background: #FFF0EB; color: #C0392B; border: 1px solid #E8B4B8; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; cursor: pointer;">
+                                    🗑️ Supprimer
+                                </button>
+                            </form>
+                        </div>
+                        @endif
+                        @endauth
                     </div>
-                    <p style="color: #4A3728; line-height: 1.6; margin-left: 48px;">{{ $comment->content }}</p>
+
+                    <p id="text-comment-{{ $comment->id }}" style="color: #4A3728; line-height: 1.6; margin-left: 48px;">{{ $comment->content }}</p>
+
+                    <div id="edit-comment-{{ $comment->id }}" style="display: none; margin-left: 48px; margin-top: 8px;">
+                        <form action="{{ route('comments.update', $comment) }}" method="POST">
+                            @csrf
+                            @method('PUT')
+                            <textarea name="content" rows="2"
+                                      style="width: 100%; border: 1px solid #E8D5C0; border-radius: 12px; padding: 10px 14px; font-size: 0.9rem; color: #4A3728; background: #FAF3E8; margin-bottom: 8px;">{{ $comment->content }}</textarea>
+                            <div style="display: flex; gap: 8px;">
+                                <button type="submit"
+                                        style="background: linear-gradient(135deg, #2C1810, #4A2C17); color: #F5E6D3; padding: 6px 20px; border-radius: 20px; font-size: 0.85rem; border: none; cursor: pointer;">
+                                    Sauvegarder
+                                </button>
+                                <button type="button"
+                                        onclick="document.getElementById('edit-comment-{{ $comment->id }}').style.display='none'; document.getElementById('text-comment-{{ $comment->id }}').style.display='block'"
+                                        style="background: #F5E6D3; color: #2C1810; padding: 6px 20px; border-radius: 20px; font-size: 0.85rem; border: 1px solid #C8956C; cursor: pointer;">
+                                    Annuler
+                                </button>
+                            </div>
+                        </form>
+                    </div>
 
                     @foreach($comment->replies as $reply)
                     <div style="margin-left: 48px; margin-top: 12px; padding-left: 16px; border-left: 2px solid #C8956C;">
@@ -165,4 +235,40 @@
 
         </div>
     </div>
+
+    <!-- Script Carrousel -->
+    <script>
+        let currentSlide = 0;
+        const totalSlides = {{ $post->images->count() }};
+
+        function updateCarousel() {
+            const inner = document.getElementById('carousel-inner');
+            const dots = document.querySelectorAll('.dot');
+            if (inner) {
+                inner.style.transform = `translateX(-${currentSlide * 100}%)`;
+            }
+            dots.forEach((dot, index) => {
+                dot.style.background = index === currentSlide
+                    ? '#F5E6D3'
+                    : 'rgba(245,230,211,0.5)';
+            });
+        }
+
+        function changeSlide(direction) {
+            currentSlide = (currentSlide + direction + totalSlides) % totalSlides;
+            updateCarousel();
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateCarousel();
+        }
+
+        // Défilement automatique toutes les 3 secondes
+        if (totalSlides > 1) {
+            setInterval(() => {
+                changeSlide(1);
+            }, 3000);
+        }
+    </script>
 </x-app-layout>

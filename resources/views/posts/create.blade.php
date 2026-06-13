@@ -34,14 +34,30 @@
                         @enderror
                     </div>
 
-                    <!-- Image -->
+                    <!-- Image principale -->
                     <div style="margin-bottom: 24px;">
-                        <label style="display: block; color: #2C1810; font-weight: bold; margin-bottom: 8px; font-family: Georgia, serif;">Image (optionnel)</label>
+                        <label style="display: block; color: #2C1810; font-weight: bold; margin-bottom: 8px; font-family: Georgia, serif;">Image principale (optionnel)</label>
                         <div style="border: 2px dashed #C8956C; border-radius: 12px; padding: 24px; text-align: center; background: #FAF3E8;">
-                            <p style="color: #C8956C; margin-bottom: 12px;">🖼️ Choisir une image</p>
+                            <p style="color: #C8956C; margin-bottom: 12px;">🖼️ Image de couverture</p>
                             <input type="file" name="image" accept="image/*">
                         </div>
                         @error('image')
+                            <p style="color: #C0392B; font-size: 0.85rem; margin-top: 6px;">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Images carrousel -->
+                    <div style="margin-bottom: 24px;">
+                        <label style="display: block; color: #2C1810; font-weight: bold; margin-bottom: 8px; font-family: Georgia, serif;">Images carrousel (optionnel)</label>
+                        <div style="border: 2px dashed #C8956C; border-radius: 12px; padding: 24px; text-align: center; background: #FAF3E8;">
+                            <p style="color: #C8956C; margin-bottom: 4px;">🎠 Ajouter plusieurs images</p>
+                            <p style="color: #7A5C45; font-size: 0.85rem; margin-bottom: 12px;">Tu peux sélectionner plusieurs photos en même temps</p>
+                            <input type="file" name="images[]" accept="image/*" multiple
+                                   onchange="previewImages(this)">
+                        </div>
+                        <!-- Prévisualisation -->
+                        <div id="preview-container" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px;"></div>
+                        @error('images.*')
                             <p style="color: #C0392B; font-size: 0.85rem; margin-top: 6px;">{{ $message }}</p>
                         @enderror
                     </div>
@@ -77,4 +93,23 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function previewImages(input) {
+            const container = document.getElementById('preview-container');
+            container.innerHTML = '';
+            if (input.files) {
+                Array.from(input.files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const div = document.createElement('div');
+                        div.style.cssText = 'position: relative; width: 100px; height: 100px;';
+                        div.innerHTML = `<img src="${e.target.result}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px; border: 2px solid #C8956C;">`;
+                        container.appendChild(div);
+                    }
+                    reader.readAsDataURL(file);
+                });
+            }
+        }
+    </script>
 </x-app-layout>

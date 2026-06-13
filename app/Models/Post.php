@@ -38,4 +38,9 @@ class Post extends Model
     {
         return $this->belongsToMany(Category::class, 'post_category');
     }
+
+    public function images()
+    {
+        return $this->hasMany(PostImage::class)->orderBy('order');
+    }
 }
