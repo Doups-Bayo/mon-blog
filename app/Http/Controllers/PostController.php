@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use App\Models\Category;
-use App\Models\PostImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -15,7 +14,7 @@ class PostController extends Controller
 
     public function index()
     {
-        $posts = Post::with('user', 'categories', 'likes', 'comments', 'images')
+        $posts = Post::with('user', 'categories', 'likes', 'comments')
                      ->where('status', 'published')
                      ->latest('published_at')
                      ->paginate(10);
@@ -32,10 +31,9 @@ class PostController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title'    => 'required|min:5|max:255',
-            'content'  => 'required|min:10',
-            'image'    => 'nullable|image|max:2048',
-            'images.*' => 'nullable|image|max:2048',
+            'title'   => 'required|min:5|max:255',
+            'content' => 'required|min:10',
+            'image'   => 'nullable|image|max:2048',
         ]);
 
         $imagePath = null;
@@ -53,18 +51,6 @@ class PostController extends Controller
             'published_at' => now(),
         ]);
 
-        // Sauvegarder les images du carrousel
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $index => $image) {
-                $path = $image->store('posts/carousel', 'public');
-                PostImage::create([
-                    'post_id'    => $post->id,
-                    'image_path' => $path,
-                    'order'      => $index,
-                ]);
-            }
-        }
-
         if ($request->categories) {
             $post->categories()->attach($request->categories);
         }
@@ -75,7 +61,7 @@ class PostController extends Controller
 
     public function show($slug)
     {
-        $post = Post::with('user', 'categories', 'likes', 'comments.user', 'comments.replies.user', 'images')
+        $post = Post::with('user', 'categories', 'likes', 'comments.user', 'comments.replies.user')
                     ->where('slug', $slug)
                     ->firstOrFail();
 
@@ -94,10 +80,9 @@ class PostController extends Controller
         $this->authorize('update', $post);
 
         $request->validate([
-            'title'    => 'required|min:5|max:255',
-            'content'  => 'required|min:10',
-            'image'    => 'nullable|image|max:2048',
-            'images.*' => 'nullable|image|max:2048',
+            'title'   => 'required|min:5|max:255',
+            'content' => 'required|min:10',
+            'image'   => 'nullable|image|max:2048',
         ]);
 
         if ($request->hasFile('image')) {
@@ -110,19 +95,6 @@ class PostController extends Controller
             'content' => $request->content,
             'image'   => $post->image,
         ]);
-
-        // Ajouter nouvelles images carrousel
-        if ($request->hasFile('images')) {
-            $lastOrder = $post->images()->max('order') ?? 0;
-            foreach ($request->file('images') as $index => $image) {
-                $path = $image->store('posts/carousel', 'public');
-                PostImage::create([
-                    'post_id'    => $post->id,
-                    'image_path' => $path,
-                    'order'      => $lastOrder + $index + 1,
-                ]);
-            }
-        }
 
         if ($request->categories) {
             $post->categories()->sync($request->categories);

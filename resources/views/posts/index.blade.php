@@ -32,6 +32,9 @@
                         @if($post->image)
                         <img src="{{ Storage::url($post->image) }}"
                              style="width: 100%; height: 200px; object-fit: cover;" alt="{{ $post->title }}">
+                        @elseif($post->images->count() > 0)
+                        <img src="{{ $post->images->first()->image_path }}"
+                             style="width: 100%; height: 200px; object-fit: cover;" alt="{{ $post->title }}">
                         @else
                         <div style="width: 100%; height: 120px; background: linear-gradient(135deg, #2C1810, #C8956C); display: flex; align-items: center; justify-content: center;">
                             <span style="color: #F5E6D3; font-size: 2rem;">✦</span>
